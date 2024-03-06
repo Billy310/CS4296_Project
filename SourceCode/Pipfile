@@ -1,0 +1,20 @@
+[[source]]
+url = "https://pypi.org/simple"
+verify_ssl = true
+name = "pypi"
+
+[packages]
+flask = "*"
+flask-cors = "*"
+torch = "*"
+torchvision = "*"
+torchaudio = "*"
+diffusers = {extras = ["torch"], version = "*"}
+accelerate = "*"
+transformers = "*"
+scipy = "*"
+
+[dev-packages]
+
+[requires]
+python_version = "3.9"
