@@ -44,6 +44,8 @@ def generate_image(prompt):
 
 @app.route("/generate", methods=["POST"])
 def generate():
+    global progress_percentage_user
+    progress_percentage_user = 0.0;
     global finished
     finished = False;
     socketid = request.args.get("socketid")
@@ -88,7 +90,7 @@ async def progressInfo(socketid):
 
         print(progress_percentage_user)
         socketio.emit("update progress", progress_percentage_user, to=socketid)
-        await sleep(1)
+        await sleep(0.3)
     
 
     socketio.emit("update progress", 100, to=socketid)
