@@ -22,3 +22,10 @@
 
     visibility: hidden;
 }
+
+#pbar {
+    margin: 20px;
+    width: 150px;
+    height: 8px;
+    position: relative;
+  }

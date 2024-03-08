@@ -7,3 +7,8 @@ flask_socketio
 transformers
 accelerate
 asgiref
+pyodbc
+fastapi
+uvicorn[standard]
+pydantic
+azure-identity

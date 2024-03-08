@@ -1,0 +1,90 @@
+html {
+    background-color: #170a2c
+}
+
+body {
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    background: linear-gradient(180deg, #7729aa -13.13%, #170a2d 0.17%, #0a061d 6.9%, rgba(10, 6, 30, 0.99) 36.38%, #010311 98.59%) !important
+}
+
+* {
+    font-family: "Helvetica Neue", "TeX Gyre Heros", "Nimbus Sans L", "Liberation Sans", "Roboto", sans-serif;
+    font-weight: initial
+}
+
+.model-card {
+    backdrop-filter: blur(24px);
+    border-radius: 32px;
+    margin: auto;
+    margin-bottom: 30px;
+    width: 90%;
+    max-width: 1100px;
+    background: linear-gradient(#0c081f, #0c081f) padding-box, linear-gradient(180deg, rgba(255, 255, 255, 0.13) -0.61%, rgba(255, 255, 255, 0.46) -0.43%, rgba(255, 255, 255, 0.2) 13.63%, rgba(255, 255, 255, 0.03) 100%) border-box;
+    border: 1px solid transparent
+}
+
+.model-card-container {
+    display: flex;
+    flex-direction: row;
+    margin: auto;
+    width: 100%;
+    max-width: fit-content;
+    justify-content: center;
+    padding: 20px
+}
+
+.model-card-col {
+    display: flex;
+    flex-direction: column;
+    margin: auto;
+    width: 100%;
+    max-width: fit-content;
+    justify-content: center;
+    min-width: 270px;
+    padding: 0px 20px 0px 20px
+}
+
+h2 {
+    font-size: 28px;
+    margin: 10px;
+    color: white
+}
+
+textarea {
+    height: 35px;
+    width: 92%;
+    padding: 10px 6px;
+    font-size: 1em;
+    border-radius: 7px;
+    box-shadow: 0 2px 5px 0 rgba(0, 0, 0, .26);
+    border-width: 0;
+    border-style: none;
+    -webkit-appearance: none;
+    margin: 10px;
+    max-width: 800px;
+    font-family: var(--font-family-poppins)
+}
+
+#modelSubmitButton {
+    padding: 10px 19px;
+    font-size: 18px;
+    border-radius: 45px;
+    border: none;
+    vertical-align: bottom;
+    white-space: nowrap;
+    color: white;
+    background: #1f78d1;
+    cursor: pointer;
+    margin: 7px;
+    width: 100%
+}
+
+#pbar {
+    margin: 20px;
+    width: 400px;
+    height: 8px;
+  }

@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<script src="{{ url_for('static', filename='progressbar/progressbar.min.js') }}"></script>
+<script src="https://cdn.socket.io/4.7.4/socket.io.min.js"
+    integrity="sha384-Gr6Lu2Ajx28mzwyVR8CFkULdCU7kMlZ9UthllibdOSo6qAiN+yXNHqtgdTvFXMT4"
+    crossorigin="anonymous"></script>
+<link rel="stylesheet" href="{{ url_for('static',filename='x.css') }}">
+
+
+<body>
+    <div class="try-it">
+        <div class="model-card">
+            <div class="model-card-container">
+                <div class="model-card-col">
+                    <div class="outline-try-it">
+                        <h2>Create an image from text prompt</h2>
+                    </div>
+
+                    <span class="model-input-col">
+
+
+                        <textarea class="model-input-text-input" placeholder="Enter your prompt" name="text"></textarea>
+
+                    </span>
+
+
+
+
+                    <div class="outline-try-it">
+                        <h2>Choose a model</h2>
+                    </div>
+                    <div class="outline-try-it" id="styles-header">
+                        <h2>Choose a style</h2>
+                    </div>
+
+                    <div class="edit-buttons-container">
+
+                        <button id="modelSubmitButton" type="button">Generate</button>
+
+                    </div>
+
+                    <div id="pbar"></div>
+
+                </div>
+
+
+
+            </div>
+        </div>
+    </div>
+</body>
+
+
+<!-- <script src="progressbar.min.js"></script> -->
+
+<script>
+
+    var bar = new ProgressBar.Line(document.getElementById('pbar'), {
+        strokeWidth: 4,
+        easing: 'easeInOut',
+        duration: 1400,
+        color: '#FFEA82',
+        trailColor: '#eee',
+        trailWidth: 1,
+        svgStyle: { width: '100%', height: '100%' },
+        from: { color: '#FFEA82' },
+        to: { color: '#ED6A5A' },
+        step: (state, bar) => {
+            bar.path.setAttribute('stroke', state.color);
+        }
+    });
+
+    bar.animate(1);
+
+
+    window.onload = function () {
+        const socket = io();
+        let socketid = undefined
+        socket.connect("https://localhost:5000");
+        // let progressBar = document.getElementById("progressBar");
+
+        socket.on("connect", function () {
+            console.log("Connected!");
+            socketid = socket.id;
+            console.log("ID: " + socketid);
+            // $("#socketid").val(socketid);
+
+        })
+        socket.on("update progress", function (perecent) {
+            //do something with percent
+            console.log("Got perecent: " + perecent);
+            // progressBar.style.width = perecent + "%";
+            bar.animate(perecent / 100);
+        })
+
+        let btn_submit = $("#trigger");
+        btn_submit.click(function () {
+
+            $("#mainForm").submit();
+
+            fetch("/progressInfo/" + socketid, {
+                method: "POST"
+            }).then(response => {
+            });
+
+        });
+    }
+
+</script>
+
+</html>

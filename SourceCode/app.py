@@ -9,6 +9,7 @@ from PIL import Image
 import base64
 from flask_socketio import SocketIO
 from asyncio import sleep
+from user import User
 
 # socketid: str
 progress_percentage_user = 0.0
@@ -45,9 +46,9 @@ def generate_image(prompt):
 @app.route("/generate", methods=["POST"])
 def generate():
     global progress_percentage_user
-    progress_percentage_user = 0.0;
+    progress_percentage_user = 0.0
     global finished
-    finished = False;
+    finished = False
     socketid = request.args.get("socketid")
     prompt = request.values.get("prompt")
 
@@ -57,7 +58,7 @@ def generate():
     image_bytes = io.BytesIO()
     image.save(image_bytes, format="JPEG")
     image_bytes = image_bytes.getvalue()
-     
+
     finished = True
     # print(f"Generated image of size {len(image_bytes)} bytes.")
 
@@ -91,7 +92,6 @@ async def progressInfo(socketid):
         print(progress_percentage_user)
         socketio.emit("update progress", progress_percentage_user, to=socketid)
         await sleep(0.3)
-    
 
     socketio.emit("update progress", 100, to=socketid)
     # finished = False;
@@ -101,6 +101,10 @@ async def progressInfo(socketid):
 @app.route("/")
 def index():
     return render_template("home.html")
+
+@app.route("/on9")
+def on9():
+    return render_template("x.html")
 
 
 # Start an http server and expose an api endpoint that takes in a prompt and returns an image.
