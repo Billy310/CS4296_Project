@@ -4,13 +4,19 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>Testing Page</title>
 </head>
 <script src="{{ url_for('static', filename='progressbar/progressbar.min.js') }}"></script>
 <script src="https://cdn.socket.io/4.7.4/socket.io.min.js"
     integrity="sha384-Gr6Lu2Ajx28mzwyVR8CFkULdCU7kMlZ9UthllibdOSo6qAiN+yXNHqtgdTvFXMT4"
     crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.js"></script>
+<script src="{{ url_for('static', filename='jquery/jquery-3.7.1.min.js') }}"></script>
+
 <link rel="stylesheet" href="{{ url_for('static',filename='x.css') }}">
+<link rel="stylesheet" href="{{ url_for('static',filename='bulma.scss') }}">
+<link rel="stylesheet" href="{{ url_for('static',filename='sweetalert2.min.css') }}">
+
 
 
 <body>
@@ -18,35 +24,38 @@
         <div class="model-card">
             <div class="model-card-container">
                 <div class="model-card-col">
-                    <div class="outline-try-it">
-                        <h2>Create an image from text prompt</h2>
-                    </div>
+                    <form method="POST" action="/generate" id="mainForm">
 
-                    <span class="model-input-col">
+                        <div class="outline-try-it">
+                            <h2>Create an image from text prompt</h2>
+                        </div>
 
-
-                        <textarea class="model-input-text-input" placeholder="Enter your prompt" name="text"></textarea>
-
-                    </span>
+                        <span class="model-input-col">
 
 
+                            <textarea class="model-input-text-input" p laceholder="Enter your prompt"
+                                name="prompt"></textarea>
+
+                        </span>
 
 
-                    <div class="outline-try-it">
-                        <h2>Choose a model</h2>
-                    </div>
-                    <div class="outline-try-it" id="styles-header">
-                        <h2>Choose a style</h2>
-                    </div>
 
-                    <div class="edit-buttons-container">
 
-                        <button id="modelSubmitButton" type="button">Generate</button>
+                        <div class="outline-try-it">
+                            <h2>Choose a model</h2>
+                        </div>
+                        <div class="outline-try-it" id="styles-header">
+                            <h2>Choose a style</h2>
+                        </div>
 
-                    </div>
+                        <div class="edit-buttons-container">
 
-                    <div id="pbar"></div>
+                            <p><button id="trigger" type="submit">Submit</button></p>
 
+                        </div>
+
+                        <div id="pbar"></div>
+                    </form>
                 </div>
 
 
@@ -60,6 +69,18 @@
 <!-- <script src="progressbar.min.js"></script> -->
 
 <script>
+
+    const Toast = Swal.mixin({
+        toast: true,
+        position: "top-end",
+        showConfirmButton: false,
+        timer: 3000,
+        timerProgressBar: true,
+        didOpen: (toast) => {
+            toast.onmouseenter = Swal.stopTimer;
+            toast.onmouseleave = Swal.resumeTimer;
+        }
+    });
 
     var bar = new ProgressBar.Line(document.getElementById('pbar'), {
         strokeWidth: 4,
@@ -76,7 +97,7 @@
         }
     });
 
-    bar.animate(1);
+    // bar.animate(1);
 
 
     window.onload = function () {
@@ -97,6 +118,13 @@
             console.log("Got perecent: " + perecent);
             // progressBar.style.width = perecent + "%";
             bar.animate(perecent / 100);
+            if (perecent == 100) {
+                Toast.fire({
+                    icon: "success",
+                    title: "Image Processing successfully"
+                });
+            }
+
         })
 
         let btn_submit = $("#trigger");
@@ -111,6 +139,11 @@
 
         });
     }
+
+
+
+
+
 
 </script>
 

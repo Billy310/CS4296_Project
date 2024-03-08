@@ -91,7 +91,7 @@ async def progressInfo(socketid):
 
         print(progress_percentage_user)
         socketio.emit("update progress", progress_percentage_user, to=socketid)
-        await sleep(0.3)
+        await sleep(0.1)
 
     socketio.emit("update progress", 100, to=socketid)
     # finished = False;

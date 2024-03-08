@@ -69,7 +69,7 @@ textarea {
     font-family: var(--font-family-poppins)
 }
 
-#modelSubmitButton {
+#trigger {
     padding: 10px 19px;
     font-size: 18px;
     border-radius: 45px;
