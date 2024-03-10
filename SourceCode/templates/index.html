@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Testing Page</title>
+</head>
+<script src="{{ url_for('static', filename='progressbar/progressbar.min.js') }}"></script>
+<script src="https://cdn.socket.io/4.7.4/socket.io.min.js"
+    integrity="sha384-Gr6Lu2Ajx28mzwyVR8CFkULdCU7kMlZ9UthllibdOSo6qAiN+yXNHqtgdTvFXMT4"
+    crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.js"></script>
+<script src="{{ url_for('static', filename='jquery/jquery-3.7.1.min.js') }}"></script>
+
+<link rel="stylesheet" href="{{ url_for('static',filename='x.css') }}">
+<link rel="stylesheet" href="{{ url_for('static',filename='bulma.scss') }}">
+<link rel="stylesheet" href="{{ url_for('static',filename='sweetalert2.min.css') }}">
+<link href="https://fonts.googleapis.com/css?family=Material+Icons|Material+Icons+Outlined" rel="stylesheet">
+
+<body>
+
+
+    <ul class="tab-bar">
+        <li data-num="1" id="text_img" class="tab wave dark">Text to Image</li>
+        <li data-num="2" id="img_img" class="tab wave dark">Image to Image</li>
+
+        <div class="indicator"></div>
+    </ul>
+
+    <div class="try-it">
+        <div class="model-card">
+            <div class="model-card-container">
+                <div class="model-card-col">
+                    <form method="POST" action="/generate" id="mainForm">
+
+                        <div class="outline-try-it">
+                            <h2>Create an image from text prompt</h2>
+                        </div>
+
+                        <span class="model-input-col">
+
+
+                            <textarea class="model-input-text-input" p laceholder="Enter your prompt"
+                                name="prompt"></textarea>
+
+                        </span>
+                        <div class="outline-try-it" id="styles-header">
+                            <h2>Choose a style</h2>
+                        </div>
+
+                        <div class="edit-buttons-container">
+
+                            <p><button id="trigger" type="submit">Submit</button></p>
+
+                        </div>
+
+                        <div id="pbar"></div>
+                    </form>
+
+                    <form method="POST" action="/img_to_img" id="img_2_img_form"
+                        style="visibility: hidden; max-height: 0;">
+
+                        <div class="outline-try-it">
+                            <h2>Create an image from Image</h2>
+                        </div>
+
+                        <span class="model-input-col">
+                            <div class="upload-files-container">
+                                <div class="drag-file-area">
+                                    <span class="material-icons-outlined upload-icon md-light"> file_upload </span>
+                                    <h3 class="dynamic-message"> Drag & drop any file here </h3>
+                                    <label class="label"> <span class="browse-files"> <input type="file"
+                                                class="default-file-input" name="img_file" />
+                                    </label>
+                                </div>
+                                <span class="cannot-upload-message"> <span class="material-icons-outlined">error</span>
+                                    Please select a file first <span
+                                        class="material-icons-outlined cancel-alert-button">cancel</span> </span>
+                                <div class="file-block">
+                                    <div class="file-info"> <span
+                                            class="material-icons-outlined file-icon md-light">description</span> <span
+                                            class="file-name"> </span> | <span class="file-size"> </span> </div>
+                                    <span class="material-icons remove-file-icon">delete</span>
+                                    <div class="progress-bar"> </div>
+                                </div>
+                                <!-- <button type="button" class="upload-button"> Upload </button> -->
+                            </div>
+                            <!-- <input type="file" id="photo_receive" name="photo_receive" accept="image/png, image/jpeg" /> -->
+                            <!-- <textarea class="model-input-text-input" p laceholder="Enter your prompt"
+                                name="prompt"></textarea> -->
+
+                        </span>
+                        <div class="outline-try-it" id="styles-header">
+                            <h2>Choose a style</h2>
+                        </div>
+
+                        <div class="edit-buttons-container">
+
+                            <p><button id="trigger_img2img" type="submit" class="upload-button">Submit</button></p>
+
+                        </div>
+                        <div id="pbar-img2img"></div>
+                        <!-- <div id="pbar"></div> -->
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+
+<script>
+
+    const Toast = Swal.mixin({
+        toast: true,
+        position: "top-end",
+        showConfirmButton: false,
+        timer: 3000,
+        timerProgressBar: true,
+        didOpen: (toast) => {
+            toast.onmouseenter = Swal.stopTimer;
+            toast.onmouseleave = Swal.resumeTimer;
+        }
+    });
+
+    var bar = new ProgressBar.Line(document.getElementById('pbar'), {
+        strokeWidth: 4,
+        easing: 'easeInOut',
+        duration: 500,
+        color: '#FFEA82',
+        trailColor: '#eee',
+        trailWidth: 1,
+        svgStyle: { width: '100%', height: '100%' },
+        from: { color: '#FFEA82' },
+        to: { color: '#ED6A5A' },
+        step: (state, bar) => {
+            bar.path.setAttribute('stroke', state.color);
+        }
+
+    });
+
+    var bar_img2img = new ProgressBar.Line(document.getElementById('pbar-img2img'), {
+        strokeWidth: 4,
+        easing: 'easeInOut',
+        duration: 500,
+        color: '#FFEA82',
+        trailColor: '#eee',
+        trailWidth: 1,
+        svgStyle: { width: '100%', height: '100%' },
+        from: { color: '#FFEA82' },
+        to: { color: '#ED6A5A' },
+        step: (state, bar) => {
+            bar.path.setAttribute('stroke', state.color);
+        }
+    });
+
+
+    window.onload = function () {
+        const socket = io();
+        let socketid = undefined
+        socket.connect("https://localhost:5000");
+
+        socket.on("connect", function () {
+            console.log("Connected!");
+            socketid = socket.id;
+            console.log("ID: " + socketid);
+
+        })
+        socket.on("update progress", function (perecent) {
+            console.log("Got perecent: " + perecent);
+            bar.animate(perecent);
+            // bar.set(perecent);
+            bar_img2img.animate(perecent);
+            if (perecent == 1) {
+                Toast.fire({
+                    icon: "success",
+                    title: "Image Processing successfully"
+                });
+            }
+
+        })
+
+        let btn_submit = $("#trigger");
+        btn_submit.click(function () {
+            bar.set(0);
+            $("#mainForm").submit();
+
+            setTimeout(function () {
+                fetch("/progressInfo/" + socketid, {
+                    method: "POST"
+                }).then(response => {
+                });
+            }, 2000);
+
+        });
+
+        let btn_submit_img = $("#trigger_img2img");
+        btn_submit_img.click(function () {
+            bar_img2img.set(0);
+            let img_2_img_form = $("#img_2_img_form");
+            img_2_img_form.submit();
+            setTimeout(function () {
+                fetch("/progressInfo/" + socketid, {
+                    method: "POST"
+                }).then(response => {
+                });
+            }, 2000);
+        })
+
+
+        // pbar-img2img
+
+    }
+</script>
+
+<script>
+
+    var waveBtn = (function () {
+        'use strict';
+        var btn = document.querySelectorAll('.wave'),
+            tab = document.querySelector('.tab-bar'),
+            indicator = document.querySelector('.indicator'),
+            indi = 0;
+        indicator.style.marginLeft = indi + 'px';
+
+        for (var i = 0; i < btn.length; i++) {
+            btn[i].onmousedown = function (e) {
+                var newRound = document.createElement('div'), x, y;
+
+                newRound.className = 'cercle';
+                this.appendChild(newRound);
+
+                x = e.pageX - this.offsetLeft;
+                y = e.pageY - this.offsetTop;
+
+                newRound.style.left = x + "px";
+                newRound.style.top = y + "px";
+                newRound.className += " anim";
+
+                indicator.style.marginLeft = indi + (this.dataset.num - 1) * 150 + 'px';
+
+                setTimeout(function () {
+                    newRound.remove();
+                }, 1200);
+            };
+        }
+    }());
+
+</script>
+
+<script>
+
+    $(document).ready(function () {
+
+        $(".tab.wave.dark").click(function () {
+            var show_page = $(this).attr("data-num");
+            console.log(show_page);
+            if (show_page == 1) {
+
+                $("#img_2_img_form").css({
+                    "visibility": "hidden",
+                    "max-height": "0"
+                });
+
+                $("#mainForm").css({
+                    "visibility": "",
+                    "max-height": ""
+                });
+            }
+            else if (show_page == 2) {
+                $("#mainForm").css({
+                    "visibility": "hidden",
+                    "max-height": "0"
+                });
+
+                $("#img_2_img_form").css({
+                    "visibility": "",
+                    "max-height": ""
+                });
+            }
+        });
+
+
+    });
+
+
+</script>
+
+<script src="{{ url_for('static', filename='uploadfile.js') }}"></script>
+
+</html>
