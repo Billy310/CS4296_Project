@@ -1,4 +1,3 @@
-# Path: app.py
 from diffusers import (
     StableDiffusionPipeline,
     DPMSolverMultistepScheduler,
@@ -18,7 +17,7 @@ from user import User
 
 # socketid: str
 progress_percentage_user = 0.0
-total_step_gen = 30
+total_step_gen = 40
 finished = False
 app = Flask(__name__)
 socketio = SocketIO(app)
@@ -63,6 +62,9 @@ def generate_image(prompt):
         callback=progress,
         callback_steps=1,
     ).images[0]
+
+    global finished
+    finished = True
     # print(image.hidden_states)
     return image
 
@@ -75,14 +77,18 @@ def generate():
     progress_percentage_user = 0.0
 
     socketid = request.args.get("socketid")
-    prompt = request.values.get("prompt")
+    animal = request.values.get("animal");
+    style_ = request.values.get("style_");
+    action_ = request.values.get("action_");
+
+    prompt = "master piece, high quality"+", a "+style_+" "+animal+","+action_+"<lora:J_illustration:0.8> j_illustration"
     print("prompt:", prompt)
     image = generate_image(prompt)
     image_bytes = io.BytesIO()
     image.save(image_bytes, format="JPEG")
     image_bytes = image_bytes.getvalue()
 
-    finished = True
+    # finished = True
 
     return send_file(
         io.BytesIO(image_bytes),

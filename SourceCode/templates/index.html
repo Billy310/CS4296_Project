@@ -35,19 +35,44 @@
                     <form method="POST" action="/generate" id="mainForm">
 
                         <div class="outline-try-it">
-                            <h2>Create an image from text prompt</h2>
+                            <h2>Create an image from the above Selections</h2>
                         </div>
 
                         <span class="model-input-col">
+                            <!-- <textarea class="model-input-text-input" p laceholder="Enter your prompt"
+                                name="prompt"></textarea> -->
 
+                            <h2>Choose an Animal Type</h2>
 
-                            <textarea class="model-input-text-input" p laceholder="Enter your prompt"
-                                name="prompt"></textarea>
+                            <select name="animal">
+                                <option value="squirrel">Squirrel &#x1F43F;&#xFE0F;</option>
+                                <option value="pig">Pig &#128022;</option>
+                                <option value="deer">Deer &#129420;</option>
+                                <option value="rabbit">Rabbit &#128007;</option>
+                                <option value="monkey">Monkey &#128018;</option>
+                                <option value="dog">Dog &#129454;</option>
+                                <option value="pegasus">Pegasus &#129412;</option>
+                                 
+                            </select>
 
                         </span>
-                        <div class="outline-try-it" id="styles-header">
-                            <h2>Choose a style</h2>
-                        </div>
+
+                        <span class="model-input-col">
+                            <h2>Choose an Style</h2>
+                            <select name="style_">
+                                <option value="cute">Cute </option>
+                                <!-- <option value="cute">Cute </option> -->
+                            </select>
+                        </span>
+
+                        <span class="model-input-col">
+                            <h2>Choose an Action</h2>
+                            <select name="action_">
+                                <option value="eatting">Eatting</option>
+                                <option value="running">Running</option>
+                            </select>
+                        </span>
+
 
                         <div class="edit-buttons-container">
 
