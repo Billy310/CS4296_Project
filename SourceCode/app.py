@@ -15,51 +15,30 @@ from flask_socketio import SocketIO
 from asyncio import sleep
 from user import User
 
-# socketid: str
-progress_percentage_user = 0.0
 total_step_gen = 40
 finished = False
 app = Flask(__name__)
 socketio = SocketIO(app)
 CORS(app)
-
-# model_id = "stabilityai/stable-diffusion-2-1"
-# model_id = "WarriorMama777/AbyssOrangeMix2"
-
-model_id = "./AnythingXL_v50/AnythingXL_v50.safetensors"
+progress_percentage_user = {}
 
 
-# pipe = StableDiffusionPipeline.from_pretrained(
-#     model_id, torch_dtype=torch.float16, use_safetensors=False
-# )
-pipe = StableDiffusionPipeline.from_single_file(model_id)
-
-
-# pipe.scheduler = DPMSolverMultistepScheduler.from_config(pipe.scheduler.config)
-pipe.scheduler = EulerDiscreteScheduler.from_config(pipe.scheduler.config)
-# pipe.unet.load_attn_procs("./model/lora/anpan.safetensors")
-pipe.load_lora_weights("./model/lora/", weight_name="J_illustration.safetensors")
-pipe = pipe.to("cuda")
-
-# pipe.to("cuda")
-# pipe.load_lora_weights(".", weight_name="./model/lora/anpan.safetensors")
-# pipe.lora_state_dict(pretrained_model_name_or_path_or_dict="./model/lora/anpan.safetensors")
-
-# pipe.safety_checker = lambda images, clip_input: (images, False)
-
-
-# pipe.enable_attention_slicing()
-
-
-def generate_image(prompt):
+def generate_image(prompt, socketid):
+    def progress_with_socketid(step, timestep, latents):
+        progress(step, timestep, latents, socketid)
+    model_id = "./AnythingXL_v50/AnythingXL_v50.safetensors"
+    pipe = StableDiffusionPipeline.from_single_file(model_id)
+    pipe.scheduler = EulerDiscreteScheduler.from_config(pipe.scheduler.config)
+    pipe.load_lora_weights("./model/lora/", weight_name="J_illustration.safetensors")
+    pipe = pipe.to("cuda")
 
     image = pipe(
         prompt,
-        negative_prompt = "easy_negative, NSFW",
-        guidance_scale = 7,
+        negative_prompt="easy_negative, NSFW",
+        guidance_scale=7,
         # negative_prompt="nsfw, (worst quality, low quality:1.4), (lip, nose, tooth, rouge, lipstick, eyeshadow:1.4), (blush:1.2), (jpeg artifacts:1.4), (depth of field, bokeh, blurry, film grain, chromatic aberration, lens flare:1.0), (1boy, abs, muscular, rib:1.0), greyscale, monochrome, dusty sunbeams, trembling, motion lines, motion blur, emphasis lines, text, title, logo, signature",
         num_inference_steps=total_step_gen,
-        callback=progress,
+        callback=progress_with_socketid,
         callback_steps=1,
     ).images[0]
 
@@ -69,21 +48,34 @@ def generate_image(prompt):
     return image
 
 
+
+
+
 @app.route("/generate", methods=["POST"])
 def generate():
     global finished
     finished = False
-    global progress_percentage_user
-    progress_percentage_user = 0.0
+    # global progress_percentage_user
+    # progress_percentage_user = 0.0
 
-    socketid = request.args.get("socketid")
-    animal = request.values.get("animal");
-    style_ = request.values.get("style_");
-    action_ = request.values.get("action_");
+    socketid = request.values.get("socketid")
+    # print(socketid)
+    animal = request.values.get("animal")
+    style_ = request.values.get("style_")
+    action_ = request.values.get("action_")
 
-    prompt = "master piece, high quality"+", a "+style_+" "+animal+","+action_+"<lora:J_illustration:0.8> j_illustration"
-    print("prompt:", prompt)
-    image = generate_image(prompt)
+    prompt = (
+        "master piece, high quality"
+        + ", a "
+        + style_
+        + " "
+        + animal
+        + ","
+        + action_
+        + "<lora:J_illustration:0.8> j_illustration"
+    )
+    # print("prompt:", prompt)
+    image = generate_image(prompt,socketid)
     image_bytes = io.BytesIO()
     image.save(image_bytes, format="JPEG")
     image_bytes = image_bytes.getvalue()
@@ -101,8 +93,8 @@ def generate():
 @app.route("/img_to_img", methods=["POST"])
 def imgtoimg():
 
-    global progress_percentage_user
-    progress_percentage_user = 0.0
+    # global progress_percentage_user
+    # progress_percentage_user = 0.0
     global finished
     finished = False
     image = generate_image("animate")
@@ -121,36 +113,60 @@ def imgtoimg():
 
     # init_image = Image.open()
 
+# progress_dict = {}
 
-def progress(step, timestep, latents):
-    # print(step,timestep,latents[0][0][0][0])
+def progress(step, timestep, latents,socketid):
 
-    global progress_percentage_user
-    progress_percentage_user = float((step / total_step_gen))
-    # progress_percentage1 = progress_percentage
-    # print(f"Progress: {progress_percentage_user}%")
+    global matchsocketid
+    matchsocketid = socketid
+    print(socketid)
+    
+    print(float((step / total_step_gen)))
+    progress_percentage_user[socketid] = float((step / total_step_gen))
+    # global progress_percentage_user
+    # progress_percentage_user = float((step / total_step_gen))
 
+
+progress_dict = {}
 
 @app.route("/progressInfo/<socketid>", methods=["POST"])
 async def progressInfo(socketid):
+    
+    # Initialize progress for this socketid if it doesn't exist
+    progress_dict[socketid] = 0
+    progress_percentage_user[socketid] = 0 
+    # if socketid not in progress_dict:
+    #     progress_dict[socketid] = 0
+    
+    print("INIT",socketid,progress_dict[socketid])
+    # if progress_dict[socketid] >= 0.9:
+    #     progress_dict[socketid] = 0
+    
 
-    while not finished:
+    while progress_dict[socketid] < 0.9:
+        # Update progress
+        progress_dict[socketid] = progress_percentage_user.get(socketid, 0)
 
-        print(progress_percentage_user)
-        socketio.emit("update progress", progress_percentage_user, to=socketid)
+        # if(progress_dict[socketid]>0.9):
+        #     progress_dict[socketid] = 1
+        # progress_dict[socketid] = progress_percentage_user
+        print(socketid,progress_dict[socketid])
+        socketio.emit("update progress", progress_dict[socketid], to=socketid)
         await sleep(0.1)
+    
+    # When finished, ensure progress is set to 1
+    print(socketid,progress_dict[socketid])
+    progress_dict[socketid] = 1
+    socketio.emit("update progress", progress_dict[socketid], to=socketid)
 
-    socketio.emit("update progress", 1, to=socketid)
-    # finished = False;
     return Response(status=204)
+
 
 
 @app.route("/")
 def index():
     return render_template("index.html")
 
-
-# Start an http server and expose an api endpoint that takes in a prompt and returns an image.
 def main():
     print("Starting server...")
     # app.run(host="localhost", port=5000)
@@ -160,18 +176,4 @@ def main():
 if __name__ == "__main__":
     main()
 
-# device = "cuda"
-# model_id_or_path = "runwayml/stable-diffusion-v1-5"
-# pipe = StableDiffusionImg2ImgPipeline.from_pretrained(model_id_or_path, torch_dtype=torch.float16)
-# pipe = pipe.to(device)
 
-# url = "https://raw.githubusercontent.com/CompVis/stable-diffusion/main/assets/stable-samples/img2img/sketch-mountains-input.jpg"
-
-# response = requests.get(url)
-# init_image = Image.open(BytesIO(response.content)).convert("RGB")
-# init_image = init_image.resize((768, 512))
-
-# prompt = "A fantasy landscape, trending on artstation"
-
-# images = pipe(prompt=prompt, image=init_image, strength=0.75, guidance_scale=7.5).images
-# images[0].save("fantasy_landscape.png")

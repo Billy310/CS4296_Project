@@ -80,7 +80,7 @@
                             </select>
                         </span>
 
-
+                        <input type="hidden" name="socketid" id="socketid" />
                         <div class="edit-buttons-container">
 
                             <p><button id="trigger" type="submit">Submit</button></p>
@@ -195,6 +195,7 @@
         socket.on("connect", function () {
             console.log("Connected!");
             socketid = socket.id;
+            $("#socketid").val(socketid);
             console.log("ID: " + socketid);
 
         })
