@@ -7,24 +7,33 @@
     <script src="{{ url_for('static', filename='jquery/jquery-3.7.1.min.js') }}"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
-    <!-- <script src="{{ url_for('static', filename='chartjs/chart.min.js') }}"></script> -->
     <title>Monitor CPU GPU and RAM Usage</title>
     <style>
         .chart-container {
             width: 500px;
-            height: 500px;
+            height: 250px;
+            margin: 50px;
+        }
+
+        .chart-row {
+            display: flex;
+            justify-content: space-between;
+            flex-wrap: wrap;
         }
     </style>
 </head>
+
 <body>
-    <div class="chart-container">
-        <canvas id="cpuChart"></canvas>
-    </div>
-    <div class="chart-container">
-        <canvas id="gpuChart"></canvas>
-    </div>
-    <div class="chart-container">
-        <canvas id="ramChart"></canvas>
+    <div class="chart-row">
+        <div class="chart-container">
+            <canvas id="cpuChart"></canvas>
+        </div>
+        <div class="chart-container">
+            <canvas id="gpuChart"></canvas>
+        </div>
+        <div class="chart-container">
+            <canvas id="ramChart"></canvas>
+        </div>
     </div>
     <script>
         function createChart(ctx, label) {
@@ -44,7 +53,8 @@
                     scales: {
                         y: {
                             beginAtZero: true,
-                            max: 100
+                            max: 100,
+                            text: "Percentage (%)"
                         }
                     }
                 }
