@@ -11,6 +11,8 @@ from flask_cors import CORS
 import io
 from PIL import Image
 import base64
+import psutil
+import pynvml
 from flask_socketio import SocketIO
 from asyncio import sleep
 from user import User
@@ -26,6 +28,7 @@ progress_percentage_user = {}
 def generate_image(prompt, socketid):
     def progress_with_socketid(step, timestep, latents):
         progress(step, timestep, latents, socketid)
+
     model_id = "./AnythingXL_v50/AnythingXL_v50.safetensors"
     pipe = StableDiffusionPipeline.from_single_file(model_id)
     pipe.scheduler = EulerDiscreteScheduler.from_config(pipe.scheduler.config)
@@ -46,9 +49,6 @@ def generate_image(prompt, socketid):
     finished = True
     # print(image.hidden_states)
     return image
-
-
-
 
 
 @app.route("/generate", methods=["POST"])
@@ -75,7 +75,7 @@ def generate():
         + "<lora:J_illustration:0.8> j_illustration"
     )
     # print("prompt:", prompt)
-    image = generate_image(prompt,socketid)
+    image = generate_image(prompt, socketid)
     image_bytes = io.BytesIO()
     image.save(image_bytes, format="JPEG")
     image_bytes = image_bytes.getvalue()
@@ -88,6 +88,8 @@ def generate():
         download_name="img.jpg",
         as_attachment=True,
     )
+
+
 
 
 @app.route("/img_to_img", methods=["POST"])
@@ -113,14 +115,16 @@ def imgtoimg():
 
     # init_image = Image.open()
 
+
 # progress_dict = {}
 
-def progress(step, timestep, latents,socketid):
+
+def progress(step, timestep, latents, socketid):
 
     global matchsocketid
     matchsocketid = socketid
     print(socketid)
-    
+
     print(float((step / total_step_gen)))
     progress_percentage_user[socketid] = float((step / total_step_gen))
     # global progress_percentage_user
@@ -129,19 +133,19 @@ def progress(step, timestep, latents,socketid):
 
 progress_dict = {}
 
+
 @app.route("/progressInfo/<socketid>", methods=["POST"])
 async def progressInfo(socketid):
-    
+
     # Initialize progress for this socketid if it doesn't exist
     progress_dict[socketid] = 0
-    progress_percentage_user[socketid] = 0 
+    progress_percentage_user[socketid] = 0
     # if socketid not in progress_dict:
     #     progress_dict[socketid] = 0
-    
-    print("INIT",socketid,progress_dict[socketid])
+
+    print("INIT", socketid, progress_dict[socketid])
     # if progress_dict[socketid] >= 0.9:
     #     progress_dict[socketid] = 0
-    
 
     while progress_dict[socketid] < 0.9:
         # Update progress
@@ -150,22 +154,46 @@ async def progressInfo(socketid):
         # if(progress_dict[socketid]>0.9):
         #     progress_dict[socketid] = 1
         # progress_dict[socketid] = progress_percentage_user
-        print(socketid,progress_dict[socketid])
+        print(socketid, progress_dict[socketid])
         socketio.emit("update progress", progress_dict[socketid], to=socketid)
         await sleep(0.1)
-    
+
     # When finished, ensure progress is set to 1
-    print(socketid,progress_dict[socketid])
+    print(socketid, progress_dict[socketid])
     progress_dict[socketid] = 1
     socketio.emit("update progress", progress_dict[socketid], to=socketid)
 
     return Response(status=204)
 
 
-
 @app.route("/")
 def index():
     return render_template("index.html")
+
+
+@app.route("/monitor")
+def monitor():
+
+ 
+    return render_template("monitor.html")
+
+@app.route("/monitor_data")
+def monitor_data():
+
+   # Initialize NVML
+    pynvml.nvmlInit()
+    # Get handle for first GPU
+    handle = pynvml.nvmlDeviceGetHandleByIndex(0)
+    # Get GPU utilization
+    gpu_util = pynvml.nvmlDeviceGetUtilizationRates(handle).gpu
+
+    info = {
+        "cpu_usage": psutil.cpu_percent(interval=1),
+        "ram_usage": psutil.virtual_memory().percent,
+        "gpu_usage": gpu_util,
+    }
+    return jsonify(info)
+
 
 def main():
     print("Starting server...")
@@ -175,5 +203,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
-

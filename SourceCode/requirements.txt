@@ -12,3 +12,5 @@ fastapi
 uvicorn[standard]
 pydantic
 azure-identity
+pynvml
+psutil
