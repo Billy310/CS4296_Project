@@ -35,6 +35,11 @@
             <canvas id="ramChart"></canvas>
         </div>
     </div>
+    
+    <form method="post" action="/restart">
+
+
+    </form>
     <script>
         function createChart(ctx, label) {
             return new Chart(ctx, {
@@ -88,4 +93,6 @@
         }
 
         setInterval(fetchData, 3000);
+
+
     </script>

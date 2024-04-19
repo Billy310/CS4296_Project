@@ -14,8 +14,11 @@ import base64
 import psutil
 import pynvml
 from flask_socketio import SocketIO
+from werkzeug.exceptions import BadRequest
 from asyncio import sleep
 from user import User
+import os
+import tempfile
 
 total_step_gen = 40
 finished = False
@@ -39,27 +42,18 @@ def generate_image(prompt, socketid):
         prompt,
         negative_prompt="easy_negative, NSFW",
         guidance_scale=7,
-        # negative_prompt="nsfw, (worst quality, low quality:1.4), (lip, nose, tooth, rouge, lipstick, eyeshadow:1.4), (blush:1.2), (jpeg artifacts:1.4), (depth of field, bokeh, blurry, film grain, chromatic aberration, lens flare:1.0), (1boy, abs, muscular, rib:1.0), greyscale, monochrome, dusty sunbeams, trembling, motion lines, motion blur, emphasis lines, text, title, logo, signature",
         num_inference_steps=total_step_gen,
         callback=progress_with_socketid,
         callback_steps=1,
     ).images[0]
 
-    global finished
-    finished = True
     # print(image.hidden_states)
     return image
 
 
 @app.route("/generate", methods=["POST"])
 def generate():
-    global finished
-    finished = False
-    # global progress_percentage_user
-    # progress_percentage_user = 0.0
-
     socketid = request.values.get("socketid")
-    # print(socketid)
     animal = request.values.get("animal")
     style_ = request.values.get("style_")
     action_ = request.values.get("action_")
@@ -90,33 +84,25 @@ def generate():
     )
 
 
-
-
-@app.route("/img_to_img", methods=["POST"])
+@app.route("/iti", methods=["POST"])
 def imgtoimg():
+    try:
+        socketid = request.values.get("socketid")
+        image_byte = request.form['img_byte']
+        # test = request.files['img_file']
+        
+        # print(test==None)
+        # print(type(test.stream))
+        # test.seek(0)
+        # image = Image.open(test)
+        # temp_file.file.seek(0)  # change the position to the beginning of the file
+        # f = {'file': (temp_file.name, temp_file, 'png')}
+        return jsonify(socket=socketid,testing=image_byte)
 
-    # global progress_percentage_user
-    # progress_percentage_user = 0.0
-    global finished
-    finished = False
-    image = generate_image("animate")
-    image_bytes = io.BytesIO()
-    image.save(image_bytes, format="JPEG")
-    image_bytes = image_bytes.getvalue()
-
-    finished = True
-
-    return send_file(
-        io.BytesIO(image_bytes),
-        mimetype="image/jpeg",
-        download_name="img.jpg",
-        as_attachment=True,
-    )
-
-    # init_image = Image.open()
-
-
-# progress_dict = {}
+    except BadRequest:
+        return jsonify(error='The file is too large'), 400
+    except Exception as e:
+        return jsonify(error=str(e)), 400
 
 
 def progress(step, timestep, latents, socketid):
@@ -127,8 +113,6 @@ def progress(step, timestep, latents, socketid):
 
     print(float((step / total_step_gen)))
     progress_percentage_user[socketid] = float((step / total_step_gen))
-    # global progress_percentage_user
-    # progress_percentage_user = float((step / total_step_gen))
 
 
 progress_dict = {}
@@ -174,17 +158,14 @@ def index():
 @app.route("/monitor")
 def monitor():
 
- 
     return render_template("monitor.html")
+
 
 @app.route("/monitor_data")
 def monitor_data():
 
-   # Initialize NVML
     pynvml.nvmlInit()
-    # Get handle for first GPU
     handle = pynvml.nvmlDeviceGetHandleByIndex(0)
-    # Get GPU utilization
     gpu_util = pynvml.nvmlDeviceGetUtilizationRates(handle).gpu
 
     info = {
@@ -193,6 +174,12 @@ def monitor_data():
         "gpu_usage": gpu_util,
     }
     return jsonify(info)
+
+
+@app.route("/restart")
+def restart():
+    os.system("killall -9 python; python app.py &")
+    return "Server is restarting..."
 
 
 def main():

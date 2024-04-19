@@ -3,6 +3,7 @@ var isAdvancedUpload = function() {
   return (('draggable' in div) || ('ondragstart' in div && 'ondrop' in div)) && 'FormData' in window && 'FileReader' in window;
 }();
 
+var globalFile;
 let draggableFileArea = document.querySelector(".drag-file-area");
 let browseFileText = document.querySelector(".browse-files");
 let uploadIcon = document.querySelector(".upload-icon");
@@ -27,7 +28,7 @@ fileInput.addEventListener("change", e => {
 	console.log(" > " + fileInput.value)
 	uploadIcon.innerHTML = 'check_circle';
 	dragDropText.innerHTML = 'File Dropped Successfully!';
-	document.querySelector(".label").innerHTML = `Drag & drop any file here to replace<span class="browse-files"> <input type="file" class="default-file-input" name="img_file" style=""/> <span class="browse-files-text" style="top: 0;"></span></span>`;
+	document.querySelector(".label").innerHTML = `Drag & drop any file here to replace<span class="browse-files"> <input type="file" class="default-file-input" name="img_file" id="img_file" style=""/> <span class="browse-files-text" style="top: 0;"></span></span>`;
 	uploadButton.innerHTML = `Upload`;
 	fileName.innerHTML = fileInput.files[0].name;
 	fileSize.innerHTML = (fileInput.files[0].size/1024).toFixed(1) + " KB";
@@ -82,11 +83,12 @@ if(isAdvancedUpload) {
 	draggableFileArea.addEventListener("drop", e => {
 		uploadIcon.innerHTML = 'check_circle';
 		dragDropText.innerHTML = 'File Dropped Successfully!';
-		document.querySelector(".label").innerHTML = `Drag & drop any file here to replace<span class="browse-files"> <input type="file" class="default-file-input" name="img_file" style=""/> <span class="browse-files-text" style="top: -23px; left: -20px;"></span> </span>`;
+		document.querySelector(".label").innerHTML = `Drag & drop any file here to replace<span class="browse-files"> <input type="file" class="default-file-input" name="img_file" id="img_file" style=""/> <span class="browse-files-text" style="top: -23px; left: -20px;"></span> </span>`;
 		uploadButton.innerHTML = `Upload`;
 		
 		let files = e.dataTransfer.files;
 		fileInput.files = files;
+		globalFile = files[0];
 		console.log(files[0].name + " " + files[0].size);
 		console.log(document.querySelector(".default-file-input").value);
 		fileName.innerHTML = files[0].name;
@@ -102,6 +104,6 @@ removeFileButton.addEventListener("click", () => {
 	fileInput.value = '';
 	uploadIcon.innerHTML = 'file_upload';
 	dragDropText.innerHTML = 'Drag & drop any file here';
-	document.querySelector(".label").innerHTML = `<span class="browse-files"> <input type="file" class="default-file-input" name="img_file" /> <span class="browse-files-text"></span> <span></span> </span>`;
+	document.querySelector(".label").innerHTML = `<span class="browse-files"> <input type="file" class="default-file-input" id="img_file" name="img_file" /> <span class="browse-files-text"></span> <span></span> </span>`;
 	uploadButton.innerHTML = `Upload`;
 });

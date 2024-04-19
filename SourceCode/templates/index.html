@@ -55,7 +55,7 @@
                                 <option value="elephant">Elephant &#128024;</option>
                                 <option value="hedgehog">Hedgehog &#x1F994;</option>
                                 <option value="skunk">Skunk &#x1F9A8;</option>
-                                 
+
                             </select>
 
                         </span>
@@ -80,7 +80,7 @@
                             </select>
                         </span>
 
-                        <input type="hidden" name="socketid" id="socketid" />
+                        <input type="hidden" name="socketid" class="socketid" />
                         <div class="edit-buttons-container">
 
                             <p><button id="trigger" type="submit">Submit</button></p>
@@ -90,7 +90,7 @@
                         <div id="pbar"></div>
                     </form>
 
-                    <form method="POST" action="/img_to_img" id="img_2_img_form"
+                    <form method="POST" action="/iti" id="img_2_img_form"
                         style="visibility: hidden; max-height: 0;">
 
                         <div class="outline-try-it">
@@ -102,9 +102,10 @@
                                 <div class="drag-file-area">
                                     <span class="material-icons-outlined upload-icon md-light"> file_upload </span>
                                     <h3 class="dynamic-message"> Drag & drop any file here </h3>
-                                    <label class="label"> <span class="browse-files"> <input type="file"
-                                                class="default-file-input" name="img_file" />
-                                    </label>
+                                    <label class="label"> <span class="browse-files">
+                                            <input type="file" class="default-file-input" name="img_file" id="img_file"
+                                                accept="image/jpeg, image/png" />
+                                        </span></label>
                                 </div>
                                 <span class="cannot-upload-message"> <span class="material-icons-outlined">error</span>
                                     Please select a file first <span
@@ -116,11 +117,9 @@
                                     <span class="material-icons remove-file-icon">delete</span>
                                     <div class="progress-bar"> </div>
                                 </div>
-                                <!-- <button type="button" class="upload-button"> Upload </button> -->
                             </div>
-                            <!-- <input type="file" id="photo_receive" name="photo_receive" accept="image/png, image/jpeg" /> -->
-                            <!-- <textarea class="model-input-text-input" p laceholder="Enter your prompt"
-                                name="prompt"></textarea> -->
+                            <input type="hidden" name="img_byte" id="img_byte" value="123" />
+                            <input type="hidden" name="socketid" class="socketid" />
 
                         </span>
                         <div class="outline-try-it" id="styles-header">
@@ -129,7 +128,7 @@
 
                         <div class="edit-buttons-container">
 
-                            <p><button id="trigger_img2img" type="submit" class="upload-button">Submit</button></p>
+                            <p><button id="trigger_img2img" type="button" class="upload-button">Submit</button></p>
 
                         </div>
                         <div id="pbar-img2img"></div>
@@ -195,7 +194,7 @@
         socket.on("connect", function () {
             console.log("Connected!");
             socketid = socket.id;
-            $("#socketid").val(socketid);
+            $(".socketid").val(socketid);
             console.log("ID: " + socketid);
 
         })
@@ -230,14 +229,31 @@
         let btn_submit_img = $("#trigger_img2img");
         btn_submit_img.click(function () {
             bar_img2img.set(0);
-            let img_2_img_form = $("#img_2_img_form");
-            img_2_img_form.submit();
-            setTimeout(function () {
-                fetch("/progressInfo/" + socketid, {
-                    method: "POST"
-                }).then(response => {
-                });
-            }, 2000);
+            // var file = $("#img_file").get(0).files[0];
+            var reader = new FileReader();
+            reader.onloadend = function () {
+                var byteArray = new Uint8Array(reader.result);
+                $("#img_byte").val(byteArray);
+                $("#img_2_img_form").submit();
+                // console.log(byteArray);
+
+            }
+            console.log(globalFile);
+            reader.readAsArrayBuffer(globalFile);
+            var val_img_byte = $("#img_byte").val();
+            console.log(val_img_byte)
+
+            // console.log($("#img_byte").val())
+
+            // $("#img_2_img_form").submit();
+
+
+            // setTimeout(function () {
+            //     fetch("/progressInfo/" + socketid, {
+            //         method: "POST"
+            //     }).then(response => {
+            //     });
+            // }, 2000);
         })
 
 
