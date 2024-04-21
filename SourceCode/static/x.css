@@ -49,7 +49,7 @@ body {
 }
 
 h2 {
-    font-size: 28px;
+    font-size: 22px;
     margin: 10px;
     color: white
 }
@@ -84,7 +84,7 @@ select {
     font-family: var(--font-family-poppins)
 }
 
-#trigger {
+.sub_btn {
     padding: 10px 19px;
     font-size: 18px;
     border-radius: 45px;
@@ -95,12 +95,12 @@ select {
     background: #1f78d1;
     cursor: pointer;
     margin: 7px;
-    width: 100%
+    width: 95%
 }
 
 #pbar {
     margin: 20px;
-    width: 400px;
+    width: 500px;
     height: 8px;
 }
 
@@ -356,5 +356,14 @@ span {
     color: rgba(255, 255, 255, 1);
 }
 
+.chart-container {
+    width: 500px;
+    height: 250px;
+    margin: 50px;
+}
 
-/* .material-icons.md-light.md-inactive { color: rgba(255, 255, 255, 0.3); } */
+.chart-row {
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+}

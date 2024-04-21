@@ -1,16 +1,11 @@
 from diffusers import (
     StableDiffusionPipeline,
-    DPMSolverMultistepScheduler,
-    EulerDiscreteScheduler,
-    DiffusionPipeline,
+    EulerDiscreteScheduler
 )
-import torch
-import random
+
 from flask import Flask, Response, request, jsonify, render_template, send_file
 from flask_cors import CORS
 import io
-from PIL import Image
-import base64
 import psutil
 import pynvml
 from flask_socketio import SocketIO
@@ -36,18 +31,18 @@ def generate_image(prompt, socketid):
     pipe = StableDiffusionPipeline.from_single_file(model_id)
     pipe.scheduler = EulerDiscreteScheduler.from_config(pipe.scheduler.config)
     pipe.load_lora_weights("./model/lora/", weight_name="J_illustration.safetensors")
-    pipe = pipe.to("cuda")
 
+    pipe = pipe.to("cuda")
     image = pipe(
-        prompt,
+        width=512,
+        height=768,
+        prompt=prompt,
         negative_prompt="easy_negative, NSFW",
         guidance_scale=7,
         num_inference_steps=total_step_gen,
         callback=progress_with_socketid,
         callback_steps=1,
     ).images[0]
-
-    # print(image.hidden_states)
     return image
 
 
@@ -57,18 +52,33 @@ def generate():
     animal = request.values.get("animal")
     style_ = request.values.get("style_")
     action_ = request.values.get("action_")
+    weather = request.values.get("weather")
+    place = request.values.get("place")
+    season_ = request.values.get("season_")
+    time_of_day = request.values.get("time_of_day")
+    perspective = request.values.get("perspective")
 
     prompt = (
         "master piece, high quality"
-        + ", a "
+        + ","
         + style_
-        + " "
+        + ","
         + animal
         + ","
+        + weather
+        + ","
+        + place
+        + ","
         + action_
+        + ","
+        + season_
+        + ","
+        + time_of_day
+        + ","
+        + perspective
+        + ","
         + "<lora:J_illustration:0.8> j_illustration"
     )
-    # print("prompt:", prompt)
     image = generate_image(prompt, socketid)
     image_bytes = io.BytesIO()
     image.save(image_bytes, format="JPEG")
@@ -82,29 +92,7 @@ def generate():
         download_name="img.jpg",
         as_attachment=True,
     )
-
-
-@app.route("/iti", methods=["POST"])
-def imgtoimg():
-    try:
-        socketid = request.values.get("socketid")
-        image_byte = request.form['img_byte']
-        # test = request.files['img_file']
-        
-        # print(test==None)
-        # print(type(test.stream))
-        # test.seek(0)
-        # image = Image.open(test)
-        # temp_file.file.seek(0)  # change the position to the beginning of the file
-        # f = {'file': (temp_file.name, temp_file, 'png')}
-        return jsonify(socket=socketid,testing=image_byte)
-
-    except BadRequest:
-        return jsonify(error='The file is too large'), 400
-    except Exception as e:
-        return jsonify(error=str(e)), 400
-
-
+    
 def progress(step, timestep, latents, socketid):
 
     global matchsocketid
@@ -121,28 +109,17 @@ progress_dict = {}
 @app.route("/progressInfo/<socketid>", methods=["POST"])
 async def progressInfo(socketid):
 
-    # Initialize progress for this socketid if it doesn't exist
     progress_dict[socketid] = 0
     progress_percentage_user[socketid] = 0
-    # if socketid not in progress_dict:
-    #     progress_dict[socketid] = 0
 
     print("INIT", socketid, progress_dict[socketid])
-    # if progress_dict[socketid] >= 0.9:
-    #     progress_dict[socketid] = 0
 
     while progress_dict[socketid] < 0.9:
-        # Update progress
         progress_dict[socketid] = progress_percentage_user.get(socketid, 0)
-
-        # if(progress_dict[socketid]>0.9):
-        #     progress_dict[socketid] = 1
-        # progress_dict[socketid] = progress_percentage_user
         print(socketid, progress_dict[socketid])
         socketio.emit("update progress", progress_dict[socketid], to=socketid)
         await sleep(0.1)
 
-    # When finished, ensure progress is set to 1
     print(socketid, progress_dict[socketid])
     progress_dict[socketid] = 1
     socketio.emit("update progress", progress_dict[socketid], to=socketid)
@@ -153,13 +130,6 @@ async def progressInfo(socketid):
 @app.route("/")
 def index():
     return render_template("index.html")
-
-
-@app.route("/monitor")
-def monitor():
-
-    return render_template("monitor.html")
-
 
 @app.route("/monitor_data")
 def monitor_data():
@@ -184,8 +154,8 @@ def restart():
 
 def main():
     print("Starting server...")
-    # app.run(host="localhost", port=5000)
-    socketio.run(app, host="localhost", port=5000)
+    # socketio.run(app, host="localhost", port=5000)
+    socketio.run(app, host="0.0.0.0", port=5000)
 
 
 if __name__ == "__main__":

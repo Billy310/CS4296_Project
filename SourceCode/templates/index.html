@@ -5,6 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Testing Page</title>
+    <link rel="shortcut icon" href="{{url_for('static', filename='favicon/favicon.ico')}}">
 </head>
 <script src="{{ url_for('static', filename='progressbar/progressbar.min.js') }}"></script>
 <script src="https://cdn.socket.io/4.7.4/socket.io.min.js"
@@ -12,6 +13,8 @@
     crossorigin="anonymous"></script>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.js"></script>
 <script src="{{ url_for('static', filename='jquery/jquery-3.7.1.min.js') }}"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
 
 <link rel="stylesheet" href="{{ url_for('static',filename='x.css') }}">
 <link rel="stylesheet" href="{{ url_for('static',filename='bulma.scss') }}">
@@ -22,8 +25,8 @@
 
 
     <ul class="tab-bar">
-        <li data-num="1" id="text_img" class="tab wave dark">Text to Image</li>
-        <li data-num="2" id="img_img" class="tab wave dark">Image to Image</li>
+        <li data-num="1" id="text_img" class="tab wave dark">2D Image</li>
+        <li data-num="2" id="img_img" class="tab wave dark">Monitor</li>
 
         <div class="indicator"></div>
     </ul>
@@ -39,100 +42,132 @@
                         </div>
 
                         <span class="model-input-col">
-                            <!-- <textarea class="model-input-text-input" p laceholder="Enter your prompt"
-                                name="prompt"></textarea> -->
-
                             <h2>Choose an Animal Type</h2>
-
                             <select name="animal">
-                                <option value="squirrel">Squirrel &#x1F43F;&#xFE0F;</option>
-                                <option value="pig">Pig &#128022;</option>
-                                <option value="deer">Deer &#129420;</option>
-                                <option value="rabbit">Rabbit &#128007;</option>
-                                <option value="monkey">Monkey &#128018;</option>
-                                <option value="dog">Dog &#129454;</option>
-                                <option value="pegasus">Pegasus &#129412;</option>
-                                <option value="elephant">Elephant &#128024;</option>
-                                <option value="hedgehog">Hedgehog &#x1F994;</option>
-                                <option value="skunk">Skunk &#x1F9A8;</option>
-
+                                <option value="squirrel">Squirrel 🐿️</option>
+                                <option value="pig">Pig 🐖</option>
+                                <option value="deer">Deer 🦌</option>
+                                <option value="rabbit">Rabbit 🐇</option>
+                                <option value="monkey">Monkey 🐒</option>
+                                <option value="dog">Dog 🦮</option>
+                                <option value="pegasus">Pegasus 🦄</option>
+                                <option value="elephant">Elephant 🐘</option>
+                                <option value="hedgehog">Hedgehog 🦔</option>
+                                <option value="skunk">Skunk 🦨</option>
+                                <option value="rooster">Rooster 🐔</option>
+                                <option value="mouse">Mouse 🐁</option>
+                                <option value="ram">Ram 🐏</option>
+                                <option value="tiger">Tiger 🐅</option>
+                                <option value="ox">Ox 🐂</option>
+                                <option value="goat">Goat 🐐</option>
+                                <option value="camel">Camel 🐪</option>
+                                <option value="two_hump_camel">Two-Hump Camel 🐫</option> -->
                             </select>
-
                         </span>
-
                         <span class="model-input-col">
                             <h2>Choose an Style</h2>
                             <select name="style_">
-                                <option value="cute">Cute</option>
-                                <option value="muscular">Muscular &#x1F4AA;&#x1F3FF;</option>
-                                <!-- <option value="cute">Cute </option> -->
+                                <option value="old_cartoon">Old Cartoon Style 📺</option>
+                                <option value="modern_cartoon">Modern Cartoon Style 🖥️</option>
+                                <option value="realistic_cartoon">Realistic Cartoon Style 🎨</option>
                             </select>
                         </span>
-
+                        <span class="model-input-col">
+                            <h2>Choose a Season</h2>
+                            <select name="season_">
+                                <option value="spring">Spring 🌸</option>
+                                <option value="summer">Summer ☀️</option>
+                                <option value="autumn">Autumn 🍁</option>
+                                <option value="winter">Winter ❄️</option>
+                            </select>
+                        </span>
+                        <span class="model-input-col">
+                            <h2>Choose a Time of Day</h2>
+                            <select name="time_of_day">
+                                <option value="morning">Morning 🌅</option>
+                                <option value="noon">Noon 🕛</option>
+                                <option value="afternoon">Afternoon 🌞</option>
+                                <option value="evening">Evening 🌆</option>
+                                <option value="night">Night 🌃</option>
+                            </select>
+                        </span>
                         <span class="model-input-col">
                             <h2>Choose an Action</h2>
                             <select name="action_">
-                                <option value="eatting">Eatting</option>
-                                <option value="running">Running</option>
-                                <option value="Flying in the Sky">Flying in the Sky</option>
-                                <option value="Flying in the Sky">Flying in the Sky</option>
-
+                                <option value="grazing">Grazing 🐄</option>
+                                <option value="hunting">Hunting 🐅</option>
+                                <option value="climbing">Climbing 🐒</option>
+                                <option value="swimming">Swimming 🐬</option>
+                                <option value="flying">Flying 🦅</option>
+                                <option value="running">Running 🐎</option>
+                                <option value="jumping">Jumping 🦘</option>
+                                <option value="digging">Digging 🦡</option>
+                                <option value="sleeping">Sleeping 🐼</option>
+                                <option value="roaring">Roaring 🦁</option>
                             </select>
                         </span>
-
+                        <h2>Choose the Weather</h2>
+                        <select name="weather">
+                            <option value="overcast">Overcast ☁️</option>
+                            <option value="rain">Rain 🌧️</option>
+                            <option value="drizzle">Drizzle 🌧️</option>
+                            <option value="snow">Snow 🌨️</option>
+                            <option value="storm">Storm 🌩️</option>
+                            <option value="fog">Fog 🌫️</option>
+                            <option value="sunny">Sunny/Clear ☀️</option>
+                            <option value="partially_cloudy">Partially Cloudy 🌤️</option>
+                            <option value="cloudy">Cloudy ☁️</option>
+                            <option value="hurricanes">Hurricanes 🌩️</option>
+                            <option value="sandstorms">Sandstorms 🌫️</option>
+                        </select>
+                        </span>
+                        <span class="model-input-col">
+                            <h2>Choose the Habitat</h2>
+                            <select name="place">
+                                <option value="wetlands">Wetlands 🌧️</option>
+                                <option value="tundra">Tundra ❄️</option>
+                                <option value="savanna">Savanna 🌾</option>
+                                <option value="rainforest">Tropical Rainforest 🌴</option>
+                                <option value="desert">Desert 🏜️</option>
+                            </select>
+                        </span>
+                        <span class="model-input-col">
+                            <h2>Choose a Perspective</h2>
+                            <select name="perspective">
+                                <option value="birds_eye_view">Bird's Eye View 🦅</option>
+                                <option value="worms_eye_view">Worm's Eye View 🐛</option>
+                                <option value="third_person">Third Person 👥</option>
+                                <option value="side_view">Side View 👁️</option>
+                            </select>
+                        </span>
                         <input type="hidden" name="socketid" class="socketid" />
                         <div class="edit-buttons-container">
 
-                            <p><button id="trigger" type="submit">Submit</button></p>
+                            <p><button id="trigger" class="sub_btn" type="submit">Submit</button></p>
 
                         </div>
 
                         <div id="pbar"></div>
                     </form>
 
-                    <form method="POST" action="/iti" id="img_2_img_form"
-                        style="visibility: hidden; max-height: 0;">
+                    <form method="POST" id="img_2_img_form" style="visibility: hidden; max-height: 0; display: none;">
 
                         <div class="outline-try-it">
-                            <h2>Create an image from Image</h2>
                         </div>
-
                         <span class="model-input-col">
-                            <div class="upload-files-container">
-                                <div class="drag-file-area">
-                                    <span class="material-icons-outlined upload-icon md-light"> file_upload </span>
-                                    <h3 class="dynamic-message"> Drag & drop any file here </h3>
-                                    <label class="label"> <span class="browse-files">
-                                            <input type="file" class="default-file-input" name="img_file" id="img_file"
-                                                accept="image/jpeg, image/png" />
-                                        </span></label>
+                            <span class="model-input-col">
+
+                                <div class="chart-row">
+                                    <div class="chart-container">
+                                        <canvas id="cpuChart"></canvas>
+                                    </div>
+                                    <div class="chart-container">
+                                        <canvas id="gpuChart"></canvas>
+                                    </div>
+                                    <div class="chart-container">
+                                        <canvas id="ramChart"></canvas>
+                                    </div>
                                 </div>
-                                <span class="cannot-upload-message"> <span class="material-icons-outlined">error</span>
-                                    Please select a file first <span
-                                        class="material-icons-outlined cancel-alert-button">cancel</span> </span>
-                                <div class="file-block">
-                                    <div class="file-info"> <span
-                                            class="material-icons-outlined file-icon md-light">description</span> <span
-                                            class="file-name"> </span> | <span class="file-size"> </span> </div>
-                                    <span class="material-icons remove-file-icon">delete</span>
-                                    <div class="progress-bar"> </div>
-                                </div>
-                            </div>
-                            <input type="hidden" name="img_byte" id="img_byte" value="123" />
-                            <input type="hidden" name="socketid" class="socketid" />
-
-                        </span>
-                        <div class="outline-try-it" id="styles-header">
-                            <h2>Choose a style</h2>
-                        </div>
-
-                        <div class="edit-buttons-container">
-
-                            <p><button id="trigger_img2img" type="button" class="upload-button">Submit</button></p>
-
-                        </div>
-                        <div id="pbar-img2img"></div>
-                        <!-- <div id="pbar"></div> -->
                     </form>
                 </div>
             </div>
@@ -170,20 +205,20 @@
 
     });
 
-    var bar_img2img = new ProgressBar.Line(document.getElementById('pbar-img2img'), {
-        strokeWidth: 4,
-        easing: 'easeInOut',
-        duration: 500,
-        color: '#FFEA82',
-        trailColor: '#eee',
-        trailWidth: 1,
-        svgStyle: { width: '100%', height: '100%' },
-        from: { color: '#FFEA82' },
-        to: { color: '#ED6A5A' },
-        step: (state, bar) => {
-            bar.path.setAttribute('stroke', state.color);
-        }
-    });
+    // var bar_img2img = new ProgressBar.Line(document.getElementById('pbar-img2img'), {
+    //     strokeWidth: 4,
+    //     easing: 'easeInOut',
+    //     duration: 500,
+    //     color: '#FFEA82',
+    //     trailColor: '#eee',
+    //     trailWidth: 1,
+    //     svgStyle: { width: '100%', height: '100%' },
+    //     from: { color: '#FFEA82' },
+    //     to: { color: '#ED6A5A' },
+    //     step: (state, bar) => {
+    //         bar.path.setAttribute('stroke', state.color);
+    //     }
+    // });
 
 
     window.onload = function () {
@@ -202,7 +237,7 @@
             console.log("Got perecent: " + perecent);
             bar.animate(perecent);
             // bar.set(perecent);
-            bar_img2img.animate(perecent);
+            // bar_img2img.animate(perecent);
             if (perecent == 1) {
                 Toast.fire({
                     icon: "success",
@@ -231,21 +266,21 @@
             bar_img2img.set(0);
             // var file = $("#img_file").get(0).files[0];
             var reader = new FileReader();
-            reader.onloadend = function () {
-                var byteArray = new Uint8Array(reader.result);
-                $("#img_byte").val(byteArray);
-                $("#img_2_img_form").submit();
-                // console.log(byteArray);
+            // reader.onloadend = function () {
+            //     var byteArray = new Uint8Array(reader.result);
+            //     $("#img_byte").val(byteArray);
+            //     $("#img_2_img_form").submit();
+            //     // console.log(byteArray);
 
-            }
-            console.log(globalFile);
-            reader.readAsArrayBuffer(globalFile);
-            var val_img_byte = $("#img_byte").val();
-            console.log(val_img_byte)
+            // }
+            // console.log(globalFile);
+            // reader.readAsArrayBuffer(globalFile);
+            // var val_img_byte = $("#img_byte").val();
+            // console.log(val_img_byte)
 
             // console.log($("#img_byte").val())
 
-            // $("#img_2_img_form").submit();
+            $("#img_2_img_form").submit();
 
 
             // setTimeout(function () {
@@ -308,23 +343,27 @@
 
                 $("#img_2_img_form").css({
                     "visibility": "hidden",
-                    "max-height": "0"
+                    "max-height": "0",
+                    "display":"none"
                 });
 
                 $("#mainForm").css({
                     "visibility": "",
-                    "max-height": ""
+                    "max-height": "",
+                    "display":"block"
                 });
             }
             else if (show_page == 2) {
                 $("#mainForm").css({
                     "visibility": "hidden",
-                    "max-height": "0"
+                    "max-height": "0",
+                    "display":"none"
                 });
 
                 $("#img_2_img_form").css({
                     "visibility": "",
-                    "max-height": ""
+                    "max-height": "",
+                    "display":"block"
                 });
             }
         });
@@ -335,6 +374,63 @@
 
 </script>
 
-<script src="{{ url_for('static', filename='uploadfile.js') }}"></script>
+<script>
+    function createChart(ctx, label) {
+        return new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: [],
+                datasets: [{
+                    label: label,
+                    data: [],
+                    borderColor: 'rgba(75, 192, 192, 1)',
+                    borderWidth: 1,
+                    fill: false
+                }]
+            },
+            options: {
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        max: 100,
+                        text: "Percentage (%)"
+                    }
+                }
+            }
+        });
+    }
+
+    var cpuChart = createChart(document.getElementById('cpuChart').getContext('2d'), 'CPU Usage');
+    var gpuChart = createChart(document.getElementById('gpuChart').getContext('2d'), 'GPU Usage');
+    var ramChart = createChart(document.getElementById('ramChart').getContext('2d'), 'RAM Usage');
+
+    function updateChart(chart, value) {
+        chart.data.labels.push(new Date().toLocaleTimeString());
+        chart.data.datasets[0].data.push(value);
+
+        if (chart.data.labels.length > 10) {
+            chart.data.labels.shift();
+            chart.data.datasets[0].data.shift();
+        }
+
+        chart.update();
+    }
+
+    function fetchData() {
+        fetch('/monitor_data')
+            .then(response => response.json())
+            .then(data => {
+                updateChart(cpuChart, data.cpu_usage);
+                updateChart(gpuChart, data.gpu_usage);
+                updateChart(ramChart, data.ram_usage);
+            });
+    }
+
+    setInterval(fetchData, 3000);
+
+
+</script>
+
+<!-- <script src="{{ url_for('static', filename='uploadfile.js') }}"></script> -->
 
 </html>
