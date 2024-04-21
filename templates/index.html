@@ -204,23 +204,6 @@
         }
 
     });
-
-    // var bar_img2img = new ProgressBar.Line(document.getElementById('pbar-img2img'), {
-    //     strokeWidth: 4,
-    //     easing: 'easeInOut',
-    //     duration: 500,
-    //     color: '#FFEA82',
-    //     trailColor: '#eee',
-    //     trailWidth: 1,
-    //     svgStyle: { width: '100%', height: '100%' },
-    //     from: { color: '#FFEA82' },
-    //     to: { color: '#ED6A5A' },
-    //     step: (state, bar) => {
-    //         bar.path.setAttribute('stroke', state.color);
-    //     }
-    // });
-
-
     window.onload = function () {
         const socket = io();
         let socketid = undefined
@@ -239,6 +222,8 @@
             // bar.set(perecent);
             // bar_img2img.animate(perecent);
             if (perecent == 1) {
+                btn_submit.show(500);
+
                 Toast.fire({
                     icon: "success",
                     title: "Image Processing successfully"
@@ -249,6 +234,7 @@
 
         let btn_submit = $("#trigger");
         btn_submit.click(function () {
+            btn_submit.hide(500);
             bar.set(0);
             $("#mainForm").submit();
 
@@ -260,40 +246,6 @@
             }, 2000);
 
         });
-
-        let btn_submit_img = $("#trigger_img2img");
-        btn_submit_img.click(function () {
-            bar_img2img.set(0);
-            // var file = $("#img_file").get(0).files[0];
-            var reader = new FileReader();
-            // reader.onloadend = function () {
-            //     var byteArray = new Uint8Array(reader.result);
-            //     $("#img_byte").val(byteArray);
-            //     $("#img_2_img_form").submit();
-            //     // console.log(byteArray);
-
-            // }
-            // console.log(globalFile);
-            // reader.readAsArrayBuffer(globalFile);
-            // var val_img_byte = $("#img_byte").val();
-            // console.log(val_img_byte)
-
-            // console.log($("#img_byte").val())
-
-            $("#img_2_img_form").submit();
-
-
-            // setTimeout(function () {
-            //     fetch("/progressInfo/" + socketid, {
-            //         method: "POST"
-            //     }).then(response => {
-            //     });
-            // }, 2000);
-        })
-
-
-        // pbar-img2img
-
     }
 </script>
 
@@ -374,63 +326,9 @@
 
 </script>
 
-<script>
-    function createChart(ctx, label) {
-        return new Chart(ctx, {
-            type: 'line',
-            data: {
-                labels: [],
-                datasets: [{
-                    label: label,
-                    data: [],
-                    borderColor: 'rgba(75, 192, 192, 1)',
-                    borderWidth: 1,
-                    fill: false
-                }]
-            },
-            options: {
-                scales: {
-                    y: {
-                        beginAtZero: true,
-                        max: 100,
-                        text: "Percentage (%)"
-                    }
-                }
-            }
-        });
-    }
-
-    var cpuChart = createChart(document.getElementById('cpuChart').getContext('2d'), 'CPU Usage');
-    var gpuChart = createChart(document.getElementById('gpuChart').getContext('2d'), 'GPU Usage');
-    var ramChart = createChart(document.getElementById('ramChart').getContext('2d'), 'RAM Usage');
-
-    function updateChart(chart, value) {
-        chart.data.labels.push(new Date().toLocaleTimeString());
-        chart.data.datasets[0].data.push(value);
-
-        if (chart.data.labels.length > 10) {
-            chart.data.labels.shift();
-            chart.data.datasets[0].data.shift();
-        }
-
-        chart.update();
-    }
-
-    function fetchData() {
-        fetch('/monitor_data')
-            .then(response => response.json())
-            .then(data => {
-                updateChart(cpuChart, data.cpu_usage);
-                updateChart(gpuChart, data.gpu_usage);
-                updateChart(ramChart, data.ram_usage);
-            });
-    }
-
-    setInterval(fetchData, 3000);
+<script src="{{ url_for('static', filename='chartjs/activate_chart.js') }}"></script>
 
 
-</script>
 
-<!-- <script src="{{ url_for('static', filename='uploadfile.js') }}"></script> -->
 
 </html>

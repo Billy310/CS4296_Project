@@ -9,11 +9,8 @@ import io
 import psutil
 import pynvml
 from flask_socketio import SocketIO
-from werkzeug.exceptions import BadRequest
 from asyncio import sleep
-from user import User
 import os
-import tempfile
 
 total_step_gen = 40
 finished = False
@@ -154,7 +151,6 @@ def restart():
 
 def main():
     print("Starting server...")
-    # socketio.run(app, host="localhost", port=5000)
     socketio.run(app, host="0.0.0.0", port=5000)
 
 
