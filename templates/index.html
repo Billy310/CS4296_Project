@@ -155,15 +155,20 @@
                         <div class="outline-try-it">
                         </div>
                         <span class="model-input-col">
+                            <h2>Monitor Resources</h2>
+
                             <span class="model-input-col">
+                                <h2>Monitor CPU</h2>
 
                                 <div class="chart-row">
                                     <div class="chart-container">
                                         <canvas id="cpuChart"></canvas>
                                     </div>
+                                    <h2>Monitor GPU</h2>
                                     <div class="chart-container">
                                         <canvas id="gpuChart"></canvas>
                                     </div>
+                                    <h2>Monitor RAM</h2>
                                     <div class="chart-container">
                                         <canvas id="ramChart"></canvas>
                                     </div>
@@ -207,7 +212,7 @@
     window.onload = function () {
         const socket = io();
         let socketid = undefined
-        socket.connect("https://localhost:5000");
+        socket.connect("https://localhost:10232");
 
         socket.on("connect", function () {
             console.log("Connected!");
