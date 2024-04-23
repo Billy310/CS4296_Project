@@ -24,8 +24,10 @@ def generate_image(prompt, socketid):
     def progress_with_socketid(step, timestep, latents):
         progress(step, timestep, latents, socketid)
 
-    model_id = "./AnythingXL_v50/AnythingXL_v50.safetensors"
-    pipe = StableDiffusionPipeline.from_single_file(model_id)
+    # model_id = "./AnythingXL_v50/AnythingXL_v50.safetensors"
+    # pipe = StableDiffusionPipeline.from_single_file(model_id)
+    repo_id = "runwayml/stable-diffusion-v1-5"
+    pipe = StableDiffusionPipeline.from_pretrained(repo_id, use_safetensors=True)
     pipe.scheduler = EulerDiscreteScheduler.from_config(pipe.scheduler.config)
     pipe.load_lora_weights("./model/lora/", weight_name="J_illustration.safetensors")
 
@@ -151,7 +153,7 @@ def restart():
 
 def main():
     print("Starting server...")
-    socketio.run(app, host="0.0.0.0", port=5000)
+    socketio.run(app, host="0.0.0.0", port=10232)
 
 
 if __name__ == "__main__":
