@@ -23,8 +23,14 @@ source [pathlink]/Scripts/activate.ps1
 ```
 pip install -r requirements.txt
 ```
+<p>5. Install Torch CUDA</p>
 
-<p>5. Run the Flask Application</p>
+```
+pip install torch==2.2.1 torchvision==0.17.1 torchaudio==2.2.1
+
+```
+
+<p>6. Run the Flask Application</p>
 
 ```
 py app.py
