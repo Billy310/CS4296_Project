@@ -18,13 +18,13 @@ py -[version] -m venv [pathlink]
 source [pathlink]/Scripts/activate.ps1
 ```
 
-<p>1. Install Packages</p>
+<p>4. Install Packages</p>
 
 ```
 pip install -r requirements.txt
 ```
 
-<p>4. Run the Flask Application</p>
+<p>5. Run the Flask Application</p>
 
 ```
 py app.py
